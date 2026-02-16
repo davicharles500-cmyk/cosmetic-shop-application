@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance & Cashbook - Cosmetic Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .nav-btn { padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; }
+        .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .stat-card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stat-card h3 { color: #666; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-card .value { font-size: 28px; font-weight: bold; color: #333; }
+        .stat-card.revenue .value { color: #51cf66; }
+        .stat-card.expense .value { color: #ff6b6b; }
+        .stat-card.profit .value { color: #339af0; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #666; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #667eea; color: white; }
+        tr:hover { background: #f8f9fa; }
+        .btn { padding: 8px 16px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #ff6b6b; color: white; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; }
+        .badge.rent { background: #ffe3e3; color: #c92a2a; }
+        .badge.transport { background: #e7f5ff; color: #1971c2; }
+        .badge.utilities { background: #fff3bf; color: #f08c00; }
+        .badge.stock_purchase { background: #e5dbff; color: #5f3dc4; }
+        .badge.other { background: #f8f9fa; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Finance & Cashbook</h1>
+            <a href="{{ url_for('index') }}" class="nav-btn">Back to Dashboard</a>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <h3>Total Sales</h3>
+                <div class="value">KES {{ "{:,.0f}".format(total_sales) }}</div>
+            </div>
+            <div class="stat-card profit">
+                <h3>Total Profit</h3>
+                <div class="value">KES {{ "{:,.0f}".format(total_profit) }}</div>
+            </div>
+            <div class="stat-card expense">
+                <h3>Total Expenses</h3>
+                <div class="value">KES {{ "{:,.0f}".format(total_expenses) }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>Net Balance</h3>
+                <div class="value">KES {{ "{:,.0f}".format(total_profit - total_expenses) }}</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Add New Expense</h2>
+            <form method="POST" action="{{ url_for('add_expense') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Date *</label>
+                        <input type="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="rent">Rent</option>
+                            <option value="transport">Transport</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="stock_purchase">Stock Purchase</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount (KES) *</label>
+                        <input type="number" step="0.01" name="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" name="description">
+                    </div>
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>Expense List</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in expenses %}
+                    <tr>
+                        <td>{{ expense.date.strftime('%Y-%m-%d') }}</td>
+                        <td><span class="badge {{ expense.category }}">{{ expense.category }}</span></td>
+                        <td>{{ expense.description or '-' }}</td>
+                        <td>KES {{ "{:,.0f}".format(expense.amount) }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('delete_expense', id=expense.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

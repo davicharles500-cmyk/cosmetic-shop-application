@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Sale - Cosmetic Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: white; text-align: center; margin-bottom: 20px; }
+        .card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #5568d3; }
+        .btn-secondary { background: #6c757d; margin-top: 10px; }
+        .nav-btn { display: inline-block; padding: 10px 20px; background: white; color: #667eea; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
+        .product-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .product-info p { margin: 5px 0; color: #666; }
+        .product-info .price { font-size: 24px; color: #51cf66; font-weight: bold; }
+        .product-info .stock { color: #ff6b6b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="nav-btn">Back to Dashboard</a>
+        <h1>Add New Sale</h1>
+        <div class="card">
+            <form method="POST" action="{{ url_for('add_sale') }}">
+                <div class="form-group">
+                    <label>Select Product *</label>
+                    <select name="product_id" id="productSelect" required onchange="updateProductInfo()">
+                        <option value="">-- Select a Product --</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}" data-price="{{ product.selling_price }}" data-stock="{{ product.quantity }}" data-name="{{ product.name }}">
+                            {{ product.name }} - KES {{ "{:,.0f}".format(product.selling_price) }} (Stock: {{ product.quantity }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="product-info" id="productInfo" style="display:none;">
+                    <p><strong>Selected:</strong> <span id="selectedProductName"></span></p>
+                    <p><strong>Available Stock:</strong> <span id="availableStock" class="stock"></span></p>
+                    <p><strong>Price:</strong> <span id="unitPrice" class="price"></span></p>
+                </div>
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" name="quantity" id="quantity" value="1" min="1" required onchange="calculateTotal()">
+                </div>
+                <div class="form-group">
+                    <label>Customer (Optional)</label>
+                    <select name="customer_id">
+                        <option value="">-- Walk-in Customer --</option>
+                        {% for customer in customers %}
+                        <option value="{{ customer.id }}">{{ customer.name }} - {{ customer.phone }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method *</label>
+                    <select name="payment_method" required>
+                        <option value="">-- Select Payment Method --</option>
+                        <option value="cash">Cash</option>
+                        <option value="mpesa">M-Pesa</option>
+                        <option value="card">Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount</label>
+                    <div class="price" id="totalAmount" style="font-size: 32px;">KES 0</div>
+                </div>
+                <button type="submit" class="btn">Record Sale</button>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+    <script>
+        function updateProductInfo() {
+            var select = document.getElementById('productSelect');
+            var option = select.options[select.selectedIndex];
+            var productInfo = document.getElementById('productInfo');
+            if (select.value) {
+                productInfo.style.display = 'block';
+                document.getElementById('selectedProductName').textContent = option.dataset.name;
+                document.getElementById('availableStock').textContent = option.dataset.stock;
+                document.getElementById('unitPrice').textContent = 'KES ' + parseFloat(option.dataset.price).toLocaleString();
+                calculateTotal();
+            } else {
+                productInfo.style.display = 'none';
+            }
+        }
+        function calculateTotal() {
+            var select = document.getElementById('productSelect');
+            var quantity = document.getElementById('quantity').value;
+            var option = select.options[select.selectedIndex];
+            if (select.value && quantity) {
+                var total = parseFloat(option.dataset.price) * parseInt(quantity);
+                document.getElementById('totalAmount').textContent = 'KES ' + total.toLocaleString();
+            } else {
+                document.getElementById('totalAmount').textContent = 'KES 0';
+            }
+        }
+    </script>
+</body>
+</html>
