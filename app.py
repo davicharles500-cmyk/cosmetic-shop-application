@@ -73,6 +73,11 @@ class Expense(db.Model):
     amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+# ==================== DATABASE INITIALIZATION ====================
+# Initialize database tables
+with app.app_context():
+    db.create_all()
+
 # ==================== ROUTES ====================
 
 @app.route('/')
@@ -105,13 +110,6 @@ def index():
                            today_profit=today_profit,
                            recent_sales=recent_sales,
                            low_stock_products=low_stock_products)
-
-# ==================== DATABASE INITIALIZATION ====================
-@app.before_first_request
-def initialize_db():
-    """Ensure the database is initialized and tables are created"""
-    with app.app_context():
-        db.create_all()  # Creates tables if they don't exist
 
 # ==================== INVENTORY ROUTES ====================
 
