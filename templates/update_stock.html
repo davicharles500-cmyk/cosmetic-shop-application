@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Stock - Cosmetic Shop</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { color: white; text-align: center; margin-bottom: 20px; }
+        .card { background: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .product-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .product-info p { margin: 8px 0; color: #666; }
+        .product-info .name { font-size: 24px; font-weight: bold; color: #333; }
+        .product-info .stock { font-size: 32px; color: #667eea; font-weight: bold; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
+        .form-group input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; }
+        .form-group input:focus { border-color: #667eea; outline: none; }
+        .btn { width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; }
+        .btn:hover { background: #5568d3; }
+        .btn-secondary { background: #6c757d; margin-top: 10px; }
+        .btn-secondary:hover { background: #5a6268; }
+        .nav-btn { display: inline-block; padding: 10px 20px; background: white; color: #667eea; text-decoration: none; border-radius: 5px; margin-bottom: 20px; font-weight: bold; }
+        .note { background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('index') }}" class="nav-btn">Back to Dashboard</a>
+        <h1>Update Stock</h1>
+        
+        <div class="card">
+            <div class="product-info">
+                <p class="name">{{ product.name }}</p>
+                <p>Brand: {{ product.brand or 'N/A' }}</p>
+                <p>Category: {{ product.category or 'N/A' }}</p>
+                <p>Current Stock: <span class="stock">{{ product.quantity }}</span></p>
+                <p>Reorder Level: {{ product.reorder_level }}</p>
+            </div>
+            
+            <form method="POST" action="{{ url_for('update_stock', id=product.id) }}">
+                <div class="form-group">
+                    <label>Stock Change *</label>
+                    <input type="number" name="quantity_change" placeholder="Enter positive number to add, negative to subtract" required>
+                    <div class="note">
+                        Enter a positive number to ADD stock (e.g., 50)<br>
+                        Enter a negative number to REDUCE stock (e.g., -10)
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">Update Stock</button>
+                <a href="{{ url_for('inventory') }}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
