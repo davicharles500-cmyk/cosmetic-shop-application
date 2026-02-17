@@ -2,6 +2,8 @@ import os
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from flask_sqlalchemy import SQLAlchemy
+from models import Product, Supplier, Customer, Sale, Expense
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'cosmetic-shop-secret-key-2024'
@@ -97,3 +99,4 @@ def add_product():
 # ==================== MAIN ====================
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+
